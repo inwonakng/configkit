@@ -1,25 +1,9 @@
 [workspace]
+authors = ["inwonakng <inwon.kang04@gmail.com>"]
 channels = ["conda-forge"]
-platforms = ["osx-arm64"]
-
-[project]
 name = "configkit"
+platforms = ["osx-arm64"]
 version = "0.1.0"
-description = "A configuration management library for experiment tracking in python"
-authors = [{name = "inwonakng", email = "inwon.kang04@gmail.com"}]
-readme = "README.md"
-requires-python = ">=3.12.11,<3.13"
-dependencies = []
-
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tasks]
 

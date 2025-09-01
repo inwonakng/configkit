@@ -5,10 +5,10 @@ from dataclasses import FrozenInstanceError, is_dataclass
 
 import pytest
 
-# Add project root to path to allow importing 'main'
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Re-added: Add the 'src' directory to sys.path for module discovery
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-from core import ConfigBase
+from configkit.core import ConfigBase # This import should now work
 
 # --- Test Config Definitions ---
 
