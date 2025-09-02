@@ -1,6 +1,7 @@
 import hashlib
 import json
 import types
+import yaml # Added import
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Type, dataclass_transform, get_args, get_origin
@@ -34,15 +35,31 @@ class ConfigBase(metaclass=ConfigMeta):
         hasher = hashlib.sha1(config_json_string.encode("utf-8"))
         return hasher.hexdigest()
 
-    def save(self, path: str | Path):
+    def save_json(self, path: str | Path):
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
         with open(p, "w") as f:
             json.dump(self._to_dict(), f, indent=2)
-        print(f"Saved config to {p}")
+        print(f"Saved config to {p} as JSON")
+
+    def save_yaml(self, path: str | Path):
+        p = Path(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "w") as f:
+            yaml.dump(self._to_dict(), f, indent=2, sort_keys=False) # sort_keys=False for YAML readability
+        print(f"Saved config to {p} as YAML")
+
+    def save(self, path: str | Path):
+        p = Path(path)
+        if p.suffix.lower() in (".json", ".jsonc"):
+            self.save_json(p)
+        elif p.suffix.lower() in (".yaml", ".yml"):
+            self.save_yaml(p)
+        else:
+            raise ValueError(f"Unsupported file extension for saving: {p.suffix}. Use .json or .yaml/.yml")
 
     @classmethod
-    def load(cls: Type["Self"], path: str | Path) -> "Self":
+    def load_json(cls: Type["Self"], path: str | Path) -> "Self":
         p = Path(path)
         with open(p, "r") as f:
             data = json.load(f)
@@ -52,6 +69,28 @@ class ConfigBase(metaclass=ConfigMeta):
             k: v for k, v in resolved_data.items() if k in known_field_names
         }
         return cls(**filtered_data)
+
+    @classmethod
+    def load_yaml(cls: Type["Self"], path: str | Path) -> "Self":
+        p = Path(path)
+        with open(p, "r") as f:
+            data = yaml.safe_load(f)
+        resolved_data = cls._resolve_paths_in_dict(data, cls)
+        known_field_names = {f.name for f in fields(cls)}
+        filtered_data = {
+            k: v for k, v in resolved_data.items() if k in known_field_names
+        }
+        return cls(**filtered_data)
+
+    @classmethod
+    def load(cls: Type["Self"], path: str | Path) -> "Self":
+        p = Path(path)
+        if p.suffix.lower() in (".json", ".jsonc"):
+            return cls.load_json(p)
+        elif p.suffix.lower() in (".yaml", ".yml"):
+            return cls.load_yaml(p)
+        else:
+            raise ValueError(f"Unsupported file extension for loading: {p.suffix}. Use .json or .yaml/.yml")
 
     @classmethod
     def _resolve_paths_in_dict(cls, data: dict, target_class: type) -> dict:
@@ -82,6 +121,7 @@ class ConfigBase(metaclass=ConfigMeta):
                 if not config_class:
                     return val
                 if isinstance(val, str) and Path(val).exists():
+                    # Use the smart load method here
                     return config_class.load(val)
                 if isinstance(val, dict):
                     resolved_nested_dict = cls._resolve_paths_in_dict(val, config_class)
