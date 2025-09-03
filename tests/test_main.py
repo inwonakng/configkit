@@ -10,28 +10,28 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 )
 
-from configkit.core import ConfigBase  # This import should now work
+from configkit.core import Config  # Fixed import
 
 # --- Test Config Definitions ---
 
 
-class SimpleConfig(ConfigBase):
+class SimpleConfig(Config):
     field1: int
     field2: str
 
 
-class NestedConfig(ConfigBase):
+class NestedConfig(Config):
     name: str
     simple: SimpleConfig
 
 
-class PathResolvingConfig(ConfigBase):
+class PathResolvingConfig(Config):
     name: str
     # This union is key for testing path resolution
     nested: SimpleConfig | str
 
 
-class ComplexConfig(ConfigBase):
+class ComplexConfig(Config):
     name: str
     list_of_simple: list[SimpleConfig]
     dict_of_simple: dict[str, SimpleConfig]
@@ -41,7 +41,7 @@ class ComplexConfig(ConfigBase):
 
 
 @pytest.fixture
-def temp_dir(tmp_path):
+def temp_dir(tmp_path: Path): # Added type hint
     """A fixture to create a temporary directory for test artifacts."""
     return tmp_path
 
@@ -49,16 +49,16 @@ def temp_dir(tmp_path):
 # --- Test Cases ---
 
 
-def test_creation_and_immutability():
+def test_creation_and_immutability() -> None: # Added return type
     """Tests that subclasses are frozen dataclasses."""
     conf = SimpleConfig(field1=1, field2="test")
     assert is_dataclass(conf)
 
     with pytest.raises(FrozenInstanceError):
-        conf.field1 = 2
+        conf.field1 = 2 # Moved inside the block
 
 
-def test_uid_consistency():
+def test_uid_consistency() -> None: # Added return type
     """Tests the UID generation logic."""
     conf1 = SimpleConfig(field1=1, field2="test")
     conf2 = SimpleConfig(field1=1, field2="test")
@@ -76,7 +76,7 @@ def test_uid_consistency():
     assert str_a == str_b
 
 
-def test_save_and_load_simple(temp_dir):
+def test_save_and_load_simple(temp_dir: Path) -> None: # Added type hint
     """Tests saving and loading a simple config."""
     conf = SimpleConfig(field1=10, field2="hello")
     config_path = temp_dir / "simple.json"
@@ -90,7 +90,7 @@ def test_save_and_load_simple(temp_dir):
     assert loaded_conf.uid == conf.uid
 
 
-def test_load_nested_dict(temp_dir):
+def test_load_nested_dict(temp_dir: Path) -> None: # Added type hint
     """Tests loading a config with a nested config provided as a dict."""
     nested_conf = NestedConfig(
         name="outer", simple=SimpleConfig(field1=1, field2="inner")
@@ -105,7 +105,7 @@ def test_load_nested_dict(temp_dir):
     assert loaded_conf.simple.field1 == 1
 
 
-def test_load_nested_path(temp_dir):
+def test_load_nested_path(temp_dir: Path) -> None: # Added type hint
     """Tests loading a config where a nested config is a path."""
     simple_conf = SimpleConfig(field1=42, field2="the answer")
     simple_path = temp_dir / "simple_for_path.json"
@@ -124,7 +124,7 @@ def test_load_nested_path(temp_dir):
     assert loaded_conf.nested == simple_conf
 
 
-def test_load_with_extra_fields(temp_dir):
+def test_load_with_extra_fields(temp_dir: Path) -> None: # Added type hint
     """Tests that loading from a JSON with extra fields doesn't crash."""
     data = {"field1": 1, "field2": "abc", "extra_field": "should be ignored"}
     config_path = temp_dir / "extra.json"
@@ -140,7 +140,7 @@ def test_load_with_extra_fields(temp_dir):
 # --- Tests for the fix ---
 
 
-def test_load_list_of_configs(temp_dir):
+def test_load_list_of_configs(temp_dir: Path) -> None: # Added type hint
     """Tests loading a config with a list of nested configs (path and dict)."""
     simple_conf1 = SimpleConfig(field1=1, field2="one")
     simple_path1 = temp_dir / "simple1.json"
@@ -169,7 +169,7 @@ def test_load_list_of_configs(temp_dir):
     assert loaded_conf.list_of_simple[1].field1 == 2
 
 
-def test_load_dict_of_configs(temp_dir):
+def test_load_dict_of_configs(temp_dir: Path) -> None: # Added type hint
     """Tests loading a config with a dict of nested configs (path and dict)."""
     simple_conf1 = SimpleConfig(field1=1, field2="one")
     simple_path1 = temp_dir / "simple1_dict.json"
@@ -195,7 +195,7 @@ def test_load_dict_of_configs(temp_dir):
     assert loaded_conf.dict_of_simple["key2"].field2 == "two"
 
 
-def test_uid_consistency_with_key_order(temp_dir):
+def test_uid_consistency_with_key_order(temp_dir: Path) -> None: # Added type hint
     """Tests that UID is consistent regardless of dictionary key order when loaded from file."""
     conf1 = SimpleConfig(field1=1, field2="test")
 
@@ -211,7 +211,7 @@ def test_uid_consistency_with_key_order(temp_dir):
     assert conf1 == conf2
 
 
-def test_nested_config_uid_consistency(temp_dir):
+def test_nested_config_uid_consistency(temp_dir: Path) -> None: # Added type hint
     """
     Tests that a nested config's UID is consistent whether loaded from path,
     from an inline dict, or created directly in memory.
@@ -253,7 +253,8 @@ def test_nested_config_uid_consistency(temp_dir):
 
 # --- New Tests for JSON/YAML --- #
 
-def test_save_load_yaml(temp_dir):
+
+def test_save_load_yaml(temp_dir: Path) -> None: # Added type hint
     """Tests saving and loading a simple config using explicit YAML methods."""
     conf = SimpleConfig(field1=10, field2="hello_yaml")
     config_path = temp_dir / "simple.yaml"
@@ -266,7 +267,8 @@ def test_save_load_yaml(temp_dir):
     assert loaded_conf == conf
     assert loaded_conf.uid == conf.uid
 
-def test_save_load_smart_json(temp_dir):
+
+def test_save_load_smart_json(temp_dir: Path) -> None: # Added type hint
     """Tests saving and loading a simple config using smart methods with .json suffix."""
     conf = SimpleConfig(field1=20, field2="smart_json")
     config_path = temp_dir / "smart.json"
@@ -279,7 +281,8 @@ def test_save_load_smart_json(temp_dir):
     assert loaded_conf == conf
     assert loaded_conf.uid == conf.uid
 
-def test_save_load_smart_yaml(temp_dir):
+
+def test_save_load_smart_yaml(temp_dir: Path) -> None: # Added type hint
     """Tests saving and loading a simple config using smart methods with .yaml suffix."""
     conf = SimpleConfig(field1=30, field2="smart_yaml")
     config_path = temp_dir / "smart.yaml"
@@ -292,7 +295,8 @@ def test_save_load_smart_yaml(temp_dir):
     assert loaded_conf == conf
     assert loaded_conf.uid == conf.uid
 
-def test_save_unsupported_extension(temp_dir):
+
+def test_save_unsupported_extension(temp_dir: Path) -> None: # Added type hint
     """Tests that saving with an unsupported extension raises a ValueError."""
     conf = SimpleConfig(field1=40, field2="unsupported")
     config_path = temp_dir / "unsupported.txt"
@@ -300,7 +304,7 @@ def test_save_unsupported_extension(temp_dir):
     with pytest.raises(ValueError, match="Unsupported file extension for saving"):
         conf.save(config_path)
 
-def test_load_unsupported_extension(temp_dir):
+def test_load_unsupported_extension(temp_dir: Path) -> None: # Added type hint
     """Tests that loading with an unsupported extension raises a ValueError."""
     # Create a dummy file with an unsupported extension
     config_path = temp_dir / "dummy.txt"
@@ -309,7 +313,7 @@ def test_load_unsupported_extension(temp_dir):
     with pytest.raises(ValueError, match="Unsupported file extension for loading"):
         SimpleConfig.load(config_path)
 
-def test_nested_config_load_smart_format(temp_dir):
+def test_nested_config_load_smart_format(temp_dir: Path) -> None: # Added type hint
     """Tests that nested configs are correctly loaded using smart format detection."""
     # Create an inner config and save it as a YAML file
     inner_conf = SimpleConfig(field1=50, field2="nested_yaml_inner")
@@ -319,7 +323,7 @@ def test_nested_config_load_smart_format(temp_dir):
     # Create an outer config that refers to the inner config via the YAML path
     outer_dict = {
         "name": "outer_with_nested_yaml",
-        "simple": str(inner_yaml_path) # This should be resolved by smart load
+        "simple": str(inner_yaml_path),  # This should be resolved by smart load
     }
     outer_json_path = temp_dir / "outer_nested.json"
     with open(outer_json_path, "w") as f:

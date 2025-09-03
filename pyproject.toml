@@ -2,7 +2,7 @@
 authors = [{name = "inwonakng", email = "inwon.kang04@gmail.com"}]
 dependencies = []
 name = "configkit"
-requires-python = ">= 3.11"
+requires-python = ">=3.10" # Changed
 version = "0.1.0"
 
 [build-system]
@@ -10,10 +10,17 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [tool.pixi.workspace]
-channels = ["conda-forge"]
+channels = ["pypi", "conda-forge"] # Added pypi
 platforms = ["osx-arm64"]
+
+[tool.pixi.dependencies] # Added this section
+python = "3.10.*" # Added python 3.10
 
 [tool.pixi.pypi-dependencies]
 configkit = { path = ".", editable = true }
+pyyaml = "*" # Added
+pytest = "*" # Added
+mypy = "*" # Added
+types-PyYAML = "*" # Added
 
 [tool.pixi.tasks]
