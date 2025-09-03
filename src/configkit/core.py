@@ -1,17 +1,15 @@
+"""
+This file defines the core logic of the configuration class `Config`.
+You can just copy this to your project somewhere and start using it.
+"""
+
 import hashlib
 import json
 import sys
 import types
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
-from typing import (
-    Any,
-    Type,
-    Union,
-    dataclass_transform,
-    get_args,
-    get_origin,
-)
+from typing import Any, Type, Union, dataclass_transform, get_args, get_origin
 
 if sys.version_info >= (3, 11):
     from typing import Self

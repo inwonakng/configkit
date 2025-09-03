@@ -6,10 +6,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: prefix-dev/setup-pixi@v0.8.13
-      with:
-        cache: true
-        pixi-version: v0.53.0
-    - name: Run tests
-      run: pixi run pytest
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.13
+        with:
+          cache: true
+          pixi-version: v0.53.0
+      - name: Run tests
+        run: pixi run pytest
