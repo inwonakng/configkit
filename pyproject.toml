@@ -11,7 +11,7 @@ requires = ["hatchling"]
 
 [tool.pixi.workspace]
 channels = ["pypi", "conda-forge"] # Added pypi
-platforms = ["osx-arm64"]
+platforms = ["osx-arm64", "linux-64"]
 
 [tool.pixi.dependencies] # Added this section
 python = ">=3.10"
