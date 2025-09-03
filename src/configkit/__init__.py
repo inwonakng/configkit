@@ -1,1 +1,1 @@
-from .core import ConfigBase
+from .core import Config

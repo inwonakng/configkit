@@ -9,6 +9,8 @@
   - A base configuration class should be able to resolve this automatically.
 - A configuration is always immutable.
 
+**Some examples**
+
 ```python
 class FirstConfig:
    field1: int
@@ -19,6 +21,7 @@ def do_first_thing(config: FirstConfig):
     ...
 
 class SecondConfig:
+    field3: tuple[int]
     ...
 def do_second_thing(config: SecondConfig):
     ...
@@ -27,32 +30,22 @@ class BigConfig:
     first: FirstConfig
     second: SecondConfig
 def do_big_thing(config: BigConfig):
+    do_first_thing(config.first)
+    do_second_thing(config.second)
     ...
 ```
 
 And I want to be able to do this:
 
 ```python
-conf1 = FirstConfig(
-   ...
-)
-conf1.save(path1)
-conf2 = SecondConfig(
-   ...
-)
-conf2.save(path2)
-conf = BigConfig(
-first=path1,
-second=path2,
-)
-```
-
-OR
-
-```python
 conf = BigConfig(
     first=FirstConfig(...),
     second=SecondConfig(...),
+)
+
+same_conf = BigConfig(
+    first = {"field1": 123, "field2": "hello"},
+    second = {"field3": (1,2,3,)}
 )
 ```
 
