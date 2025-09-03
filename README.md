@@ -45,7 +45,7 @@ conf = BigConfig(
 
 same_conf = BigConfig(
     first = {"field1": 123, "field2": "hello"},
-    second = {"field3" (1,2,3)}
+    second = {"field3": (1,2,3,)}
 )
 ```
 

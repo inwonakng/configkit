@@ -1,12 +1,13 @@
 from configkit.core import Config
-from pathlib import Path
 
 # --- Correct Usage ---
+
 
 class MyConfig(Config):
     param_int: int
     param_str: str
-    param_bool: bool = True # Default value
+    param_bool: bool = True  # Default value
+
 
 # Test constructor hints
 # Should pass mypy
@@ -16,21 +17,26 @@ conf_correct_with_default = MyConfig(param_int=2, param_str="world", param_bool=
 # Test method hints (uid, save, load)
 uid_val: str = conf_correct.uid
 conf_correct.save("test.json")
-loaded_conf: MyConfig = MyConfig.load("test.json") # Assuming test.json exists for mypy
+loaded_conf: MyConfig = MyConfig.load("test.json")  # Assuming test.json exists for mypy
+
 
 # Test nested config resolution (type checking)
 class InnerConfig(Config):
     inner_val: int
 
+
 class OuterConfig(Config):
     outer_name: str
     nested_conf: InnerConfig
+
 
 # Direct instantiation
 outer_direct = OuterConfig(outer_name="direct", nested_conf=InnerConfig(inner_val=1))
 
 # Loading from dict (mypy should understand this)
-outer_from_dict = OuterConfig(outer_name="from_dict", nested_conf={"inner_val": 2}) # mypy should infer InnerConfig
+outer_from_dict = OuterConfig(
+    outer_name="from_dict", nested_conf={"inner_val": 2}
+)  # mypy should infer InnerConfig
 
 # Loading from path (mypy should understand this)
 # For mypy, we need to mock the file existence or use a Path object
@@ -72,6 +78,8 @@ outer_wrong_nested = OuterConfig(outer_name="bad", nested_conf="not-a-config")
 
 # Nested config: Incorrect type within nested dict
 # type: ignore
-outer_wrong_nested_dict = OuterConfig(outer_name="bad_dict", nested_conf={"inner_val": "wrong_type"})
+outer_wrong_nested_dict = OuterConfig(
+    outer_name="bad_dict", nested_conf={"inner_val": "wrong_type"}
+)
 
 print("Type hint test file created. Run mypy on this file to check for errors.")
